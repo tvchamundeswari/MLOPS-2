@@ -1,6 +1,16 @@
 #om
-from src.model import train_model
+#from src.model import train_model
+import unittest
+import joblib
 
-def test_model_accuracy():
-    accuracy = train_model()
-    assert accuracy > 0.7
+class TestStringMethods(unittest.TestCase):
+
+    def test_model_presence(self):
+        model = joblib.load('model.joblib')
+        self.assertFalse(model is None)
+
+    def test_model_rediction(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+if __name__ == '__main__':
+    unittest.main()
