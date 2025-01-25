@@ -27,7 +27,7 @@ jobs:
           pip install flake8
 
       - name: Run linter
-        run: flake8 src
+        run: flake8 src tests
 
   test:
     name: Test Model
@@ -47,11 +47,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Train the model
-        run: python src/model.py
-
-      - name: Evaluate the model
-        run: python src/evaluate.py
+      - name: Run unit tests
+        run: pytest tests/test_model.py
 
   deploy:
     name: Deploy Model
@@ -71,14 +68,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Upload model
+      - name: Upload model artifact
         uses: actions/upload-artifact@v3
         with:
-          name: iris-model
-          path: models/iris_model.pkl
+          name: loan-prediction-model
+          path: models/loan_model.pkl
 
       - name: Deploy model
         run: |
           echo "Deploying the model..."
           # Add deployment steps here, e.g., upload to a server or cloud service
-          # Example: scp models/iris_model.pkl user@server:/path/to/deployment/
+          # Example: scp models/loan_model.pkl user@server:/path/to/deployment/
