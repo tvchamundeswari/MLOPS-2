@@ -1,6 +1,3 @@
-name: CI/CD Pipeline
-
-# Define the events that will trigger this workflow
 on:
   push:
     branches:
@@ -28,8 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8
 
+      - name: Check Flake8 version
+        run: flake8 --version  # This will check if flake8 is properly installed
+
       - name: Run linting
-        run: flake8 src/ --max-line-length=88
+        run: flake8 src/ --max-line-length=88  # Lint the `src/` directory
 
   testing:
     name: Run Unit Tests
@@ -58,4 +58,3 @@ jobs:
     needs: testing  # This job depends on the success of the testing job
     steps:
       - name: Deploy Placeholder
-        run: echo "Deploying the application..."
