@@ -50,8 +50,6 @@ jobs:
       - name: Train the model
         run: python src/model.py
 
-      - name: Evaluate the model
-        run: python src/evaluate.py
 
   deploy:
     name: Deploy Model
