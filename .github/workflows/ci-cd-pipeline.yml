@@ -27,7 +27,7 @@ jobs:
           pip install flake8
 
       - name: Run linter
-        run: flake8 Scripts
+        run: flake8 src
 
   test:
     name: Test Model
@@ -48,10 +48,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Train the model
-        run: python Scripts/train.py
+        run: python src/model.py
 
-      - name: Evaluate the model
-        run: python Scripts/evaluate.py
 
   deploy:
     name: Deploy Model
