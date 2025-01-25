@@ -4,85 +4,59 @@ from sklearn import metrics
 from sklearn.svm import SVC
 from imblearn.over_sampling import RandomOverSampler
 import joblib
+import EDA as EDA
+import Preprocessor as Preprocessor
 
-import EDA
-import Preprocessor
+# Loading the dataset and preprocessing
+df = Preprocessor.load_data()
+df = EDA.performEDA(df)
+df.drop('Loan_ID', axis=1, inplace=True)
 
-def train_and_evaluate():
-    """
-    Function to train an SVM model on preprocessed loan data and evaluate its performance.
-    """
+# Start Model Training
+features = df.drop('Loan_Status', axis=1)
+target = df['Loan_Status'].values
 
-    # Load and preprocess the dataset
-    df = Preprocessor.load_data()
-    df = EDA.performEDA(df)
+X_train, X_val, Y_train, Y_val = train_test_split(
+    features, target, test_size=0.2, random_state=10
+)
 
-    # Drop the 'Loan_ID' column
-    df.drop('Loan_ID', axis=1, inplace=True)
+# Balancing the data by oversampling
+ros = RandomOverSampler(sampling_strategy='minority', random_state=0)
+X, Y = ros.fit_resample(X_train, Y_train)
 
-    # Prepare features and target variable
-    features = df.drop('Loan_Status', axis=1)
-    target = df['Loan_Status'].values
+print("Dataset: training data sample:", X_train.head())
 
-    # Split data into training and validation sets
-    X_train, X_val, Y_train, Y_val = train_test_split(
-        features, target, test_size=0.2, random_state=10
-    )
+# Normalizing the features
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+X_val = scaler.transform(X_val)
 
-    # Handle class imbalance using oversampling
-    ros = RandomOverSampler(sampling_strategy='minority', random_state=0)
-    X_resampled, Y_resampled = ros.fit_resample(X_train, Y_train)
+# Apply GridSearchCV for best model parameters
+svc_parameters = {'kernel': ['linear', 'rbf'], 'C': [4, 5, 6, 7, 10, 15]}
+modelsvc = SVC()
+clf = GridSearchCV(modelsvc, svc_parameters, cv=10, scoring='accuracy')
 
-    print("Dataset: Training data sample:\n", X_train.head())
+print("Starting the grid search CV")
+clf.fit(X, Y)
 
-    # Normalize the feature set
-    scaler = StandardScaler()
-    X_resampled = scaler.fit_transform(X_resampled)
-    X_val = scaler.transform(X_val)
+print(clf.best_params_)
+print(clf.best_score_)
 
-    # Define hyperparameter tuning with GridSearchCV
-    svc_parameters = {'kernel': ['linear', 'rbf'], 'C': [4, 5, 6, 7, 10, 15]}
-    model_svc = SVC()
+final_model = SVC(kernel=clf.best_params_['kernel'], C=clf.best_params_['C'])
+final_model.fit(X, Y)
 
-    clf = GridSearchCV(model_svc, svc_parameters, cv=10, scoring='accuracy')
-    print("Starting GridSearchCV...")
-    clf.fit(X_resampled, Y_resampled)
+print('Training Accuracy:', metrics.roc_auc_score(Y, final_model.predict(X)))
+print('Validation Accuracy:', metrics.roc_auc_score(Y_val, final_model.predict(X_val)))
 
-    # Best hyperparameters
-    print("Best parameters found:", clf.best_params_)
-    print("Best cross-validation score:", clf.best_score_)
+print("Save the model")
+joblib.dump(final_model, 'model.joblib')
 
-    # Train final model with best hyperparameters
-    final_model = SVC(kernel=clf.best_params_['kernel'], C=clf.best_params_['C'])
-    final_model.fit(X_resampled, Y_resampled)
+print("Prediction:", final_model.predict([[0, 0, 1000, 50000]]))
 
-    # Evaluate model performance
-    train_auc = metrics.roc_auc_score(Y_resampled, final_model.predict(X_resampled))
-    val_auc = metrics.roc_auc_score(Y_val, final_model.predict(X_val))
+score = final_model.score(X_val, Y_val)
+print('Accuracy:', score)
 
-    print(f'Training AUC Score: {train_auc:.4f}')
-    print(f'Validation AUC Score: {val_auc:.4f}')
+from sklearn.metrics import confusion_matrix, classification_report
 
-    # Save the trained model
-    joblib.dump(final_model, 'model.joblib')
-    print("Model saved as 'model.joblib'.")
-
-    # Test prediction
-    sample_input = [[0, 0, 1000, 50000]]  # Ensure numeric inputs
-    prediction = final_model.predict(sample_input)
-    print("Sample Prediction:", prediction)
-
-    # Model accuracy
-    accuracy = final_model.score(X_val, Y_val)
-    print('Model Accuracy:', accuracy)
-
-    # Confusion Matrix
-    cm = metrics.confusion_matrix(Y_val, final_model.predict(X_val))
-    print("Confusion Matrix:\n", cm)
-
-    # Classification Report
-    print("Classification Report:\n", metrics.classification_report(Y_val, final_model.predict(X_val)))
-
-
-if __name__ == "__main__":
-    train_and_evaluate()
+cm = confusion_matrix(Y_val, final_model.predict(X_val))
+print(classification_report(Y_val, final_model.predict(X_val)))
