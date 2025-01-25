@@ -1,0 +1,61 @@
+name: CI/CD Pipeline
+
+# Define the events that will trigger this workflow
+on:
+  push:
+    branches:
+      - main          # Triggers on push to the main branch
+      - ci-cd-setup   # Triggers on push to your feature branch
+  pull_request:
+    branches:
+      - main          # Triggers when a PR is created to merge into the main branch
+
+jobs:
+  linting:
+    name: Linting Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'  # Set the Python version (adjust if needed)
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Run linting
+        run: flake8 src/ --max-line-length=88
+
+  testing:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: linting  # This job depends on the success of the linting job
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run tests
+        run: pytest tests/
+
+  deployment:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: testing  # This job depends on the success of the testing job
+    steps:
+      - name: Deploy Placeholder
+        run: echo "Deploying the application..."
