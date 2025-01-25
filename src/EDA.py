@@ -59,7 +59,11 @@ def performEDA(df):
     df = encode_labels(df)
 
     # Generating Heatmap
-    sb.heatmap(df.corr() > 0.8, annot=True, cbar=False)
+    sb.heatmap(
+        df.corr() > 0.8,
+        annot=True,
+        cbar=False
+    )
     plt.show()
 
     return df

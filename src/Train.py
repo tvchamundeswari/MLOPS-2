@@ -32,7 +32,10 @@ X = scaler.fit_transform(X)
 X_val = scaler.transform(X_val)
 
 # Apply GridSearchCV for best model parameters
-svc_parameters = {'kernel': ['linear', 'rbf'], 'C': [4, 5, 6, 7, 10, 15]}
+svc_parameters = {
+    'kernel': ['linear', 'rbf'],
+    'C': [4, 5, 6, 7, 10, 15]
+}
 modelsvc = SVC()
 clf = GridSearchCV(modelsvc, svc_parameters, cv=10, scoring='accuracy')
 
