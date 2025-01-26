@@ -50,10 +50,7 @@ final_model = SVC(kernel=clf.best_params_['kernel'], C=clf.best_params_['C'])
 final_model.fit(X, Y)
 
 print('Training Accuracy:', metrics.roc_auc_score(Y, final_model.predict(X)))
-print(
-    'Validation Accuracy:', 
-    metrics.roc_auc_score(Y_val, final_model.predict(X_val))
-)
+print('Validation Accuracy:', metrics.roc_auc_score(Y_val, final_model.predict(X_val)))
 
 print("Save the model")
 joblib.dump(final_model, 'model.joblib')
