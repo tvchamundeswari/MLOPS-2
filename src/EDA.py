@@ -29,14 +29,14 @@ def performEDA(df):
     plt.subplots(figsize=(15, 5))
     for i, col in enumerate(['ApplicantIncome', 'LoanAmount']):
         plt.subplot(1, 2, i + 1)
-        sb.distplot(df[col])
+        sb.histplot(df[col], kde=True)
     plt.tight_layout()
     # plt.show()
 
     plt.subplots(figsize=(15, 5))
     for i, col in enumerate(['ApplicantIncome', 'LoanAmount']):
         plt.subplot(1, 2, i + 1)
-        sb.boxplot(df[col])
+        sb.boxplot(x=df[col])
     plt.tight_layout()
     # plt.show()
 
@@ -44,10 +44,7 @@ def performEDA(df):
     df = df[df['LoanAmount'] < 400000]
 
     print(df.groupby('Gender').mean(numeric_only=True)['LoanAmount'])
-    print(
-    df.groupby(['Married', 'Gender'])
-      .mean(numeric_only=True)['LoanAmount']
-    )
+    print(df.groupby(['Married', 'Gender']).mean(numeric_only=True)['LoanAmount'])
 
     # Function to apply label encoding
     def encode_labels(data):
@@ -55,18 +52,13 @@ def performEDA(df):
             if data[col].dtype == 'object':
                 le = LabelEncoder()
                 data[col] = le.fit_transform(data[col])
-
         return data
 
     # Applying function in whole column
     df = encode_labels(df)
 
     # Generating Heatmap
-    sb.heatmap(
-        df.corr() > 0.8,
-        annot=True,
-        cbar=False
-    )
+    sb.heatmap(df.corr() > 0.8, annot=True, cbar=False)
     # plt.show()
 
     return df
