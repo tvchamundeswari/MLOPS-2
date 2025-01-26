@@ -9,7 +9,9 @@ class TestModel(unittest.TestCase):
         self.assertFalse(model is None)
 
     def test_model_prediction(self):
-        self.assertEqual('foo'.upper(), 'FOO')
+        model = joblib.load('model.joblib')
+        prediction = model.predict([["0", "0", "1000", "50000"]])
+        self.assertTrue(prediction ,[1])
 
 
 if __name__ == '__main__':
