@@ -3,6 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.svm import SVC
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.metrics import confusion_matrix, classification_report
 import joblib
 import EDA as EDA
 import Preprocessor as Preprocessor
@@ -49,7 +50,10 @@ final_model = SVC(kernel=clf.best_params_['kernel'], C=clf.best_params_['C'])
 final_model.fit(X, Y)
 
 print('Training Accuracy:', metrics.roc_auc_score(Y, final_model.predict(X)))
-print('Validation Accuracy:', metrics.roc_auc_score(Y_val, final_model.predict(X_val)))
+print(
+    'Validation Accuracy:', 
+    metrics.roc_auc_score(Y_val, final_model.predict(X_val))
+)
 
 print("Save the model")
 joblib.dump(final_model, 'model.joblib')
@@ -58,8 +62,6 @@ print("Prediction:", final_model.predict([[0, 0, 1000, 50000]]))
 
 score = final_model.score(X_val, Y_val)
 print('Accuracy:', score)
-
-from sklearn.metrics import confusion_matrix, classification_report
 
 cm = confusion_matrix(Y_val, final_model.predict(X_val))
 print(classification_report(Y_val, final_model.predict(X_val)))
