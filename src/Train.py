@@ -25,7 +25,8 @@ X_train, X_val, Y_train, Y_val = train_test_split(
 ros = RandomOverSampler(sampling_strategy='minority', random_state=0)
 X, Y = ros.fit_resample(X_train, Y_train)
 
-print("Dataset: training data sample:", X_train.head())
+print("Dataset: training data sample:")
+print(X_train.head())
 
 # Normalizing the features
 scaler = StandardScaler()
@@ -38,7 +39,12 @@ svc_parameters = {
     'C': [4, 5, 6, 7, 10, 15]
 }
 modelsvc = SVC()
-clf = GridSearchCV(modelsvc, svc_parameters, cv=10, scoring='accuracy')
+clf = GridSearchCV(
+    modelsvc,
+    svc_parameters,
+    cv=10,
+    scoring='accuracy'
+)
 
 print("Starting the grid search CV")
 clf.fit(X, Y)
@@ -46,16 +52,26 @@ clf.fit(X, Y)
 print(clf.best_params_)
 print(clf.best_score_)
 
-final_model = SVC(kernel=clf.best_params_['kernel'], C=clf.best_params_['C'])
+final_model = SVC(
+    kernel=clf.best_params_['kernel'],
+    C=clf.best_params_['C']
+)
 final_model.fit(X, Y)
 
-print('Training Accuracy:', metrics.roc_auc_score(Y, final_model.predict(X)))
-print('Validation Accuracy:', metrics.roc_auc_score(Y_val, final_model.predict(X_val)))
+print(
+    'Training Accuracy:',
+    metrics.roc_auc_score(Y, final_model.predict(X))
+)
+print(
+    'Validation Accuracy:',
+    metrics.roc_auc_score(Y_val, final_model.predict(X_val))
+)
 
 print("Save the model")
 joblib.dump(final_model, 'model.joblib')
 
-print("Prediction:", final_model.predict([[0, 0, 1000, 50000]]))
+print("Prediction:")
+print(final_model.predict([[0, 0, 1000, 50000]]))
 
 score = final_model.score(X_val, Y_val)
 print('Accuracy:', score)
