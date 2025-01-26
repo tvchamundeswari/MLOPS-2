@@ -2,7 +2,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
 from sklearn.preprocessing import LabelEncoder
-
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -43,8 +42,14 @@ def performEDA(df):
     df = df[df['ApplicantIncome'] < 25000]
     df = df[df['LoanAmount'] < 400000]
 
-    print(df.groupby('Gender').mean(numeric_only=True)['LoanAmount'])
-    print(df.groupby(['Married', 'Gender']).mean(numeric_only=True)['LoanAmount'])
+    print(
+        df.groupby('Gender')
+        .mean(numeric_only=True)['LoanAmount']
+    )
+    print(
+        df.groupby(['Married', 'Gender'])
+        .mean(numeric_only=True)['LoanAmount']
+    )
 
     # Function to apply label encoding
     def encode_labels(data):
@@ -58,7 +63,11 @@ def performEDA(df):
     df = encode_labels(df)
 
     # Generating Heatmap
-    sb.heatmap(df.corr() > 0.8, annot=True, cbar=False)
+    sb.heatmap(
+        df.corr() > 0.8,
+        annot=True,
+        cbar=False
+    )
     # plt.show()
 
     return df
